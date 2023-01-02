@@ -4,17 +4,20 @@ import './index.css';
 //Try the extra additional problems 
 function Square(props){
   return(
-    <button className='square' onClick = {props.onClick}>
+    <button className='square' onClick = {props.onClick}  style = {{color:props.color}} >
       {props.value}
     </button>
   )
 }
   
   class Board extends React.Component {
-
+    toHighlight(i){
+      return this.props.highlight ? this.props.highlight.includes(i) : false
+    }
+   
     renderSquare(i) {
-      return <Square value={this.props.squares[i]}
-      onClick={()=>this.props.onClick(i)} />;
+      return <Square value={this.props.squares[i] }
+      onClick={()=>this.props.onClick(i)} color={this.toHighlight(i)? 'yellow':'black'} />;
     }
     renderRow(start) {
       const squares = []
@@ -29,6 +32,7 @@ function Square(props){
       )
     } 
     render() {
+      
       //loop three times for the boar-row div
       //
       const board = []
@@ -100,6 +104,7 @@ function Square(props){
     render() {
       const history = this.state.history;;
       const current = history[this.state.stepNumber];
+      console.log(current)
       const winner = calculateWinner(current.squares);
 
 
@@ -118,16 +123,20 @@ function Square(props){
 
       let status;
       if (winner){
-        status = `Winner: ${winner}`
+        status = `Winner: ${winner[0]}`
       } else {
         status = `Next player: ${this.state.xIsNext ? 'X':'O'}`
+      }
+
+      if (winner === null && !current.squares.includes(null)){
+        status = `Winner: Draw!`
       }
       //<buttton onClick={console.log('click')}></buttton>
       return (
         <div className="game">
           <div className="game-board">
             <Board squares = {current.squares}
-            onClick={(i)=>this.handleClick(i)}/>
+            onClick={(i)=>this.handleClick(i)} highlight = {winner? winner[1] : null}/>
           </div>
           <div className="game-info">
             <button onClick={()=>this.setState({...Board,isAscending:!this.state.isAscending})}>{this.state.isAscending?'Sort By Newest':'Sort By Oldest'}</button>
@@ -157,7 +166,8 @@ function Square(props){
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
+        
+        return [squares[a],lines[i]];
       }
     }
     return null;
